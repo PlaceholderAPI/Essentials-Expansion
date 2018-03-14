@@ -159,6 +159,8 @@ public class EssentialsExpansion extends PlaceholderExpansion {
 		}
 		
 		switch (identifier) {
+		case "is_pay_confirm":
+			return essentials.getUser(p).isPromptingPayConfirm() ? PlaceholderAPIPlugin.booleanTrue() : PlaceholderAPIPlugin.booleanFalse();
 		case "is_pay_enabled":
 			return essentials.getUser(p).isAcceptingPay() ? PlaceholderAPIPlugin.booleanTrue() : PlaceholderAPIPlugin.booleanFalse();
 		case "is_teleport_enabled":
