@@ -185,7 +185,10 @@ public class EssentialsExpansion extends PlaceholderExpansion {
 				return "";
 			}
 		}
-		
+		// Adds placeholder to get count of online players not including vanished players
+		if (identifier.equals("safe_online")) {
+		    return String.valueOf((essentials.getOnlinePlayers().size() - essentials.getVanishedPlayers().size()));
+		}
 		return null;
 	}
 	
