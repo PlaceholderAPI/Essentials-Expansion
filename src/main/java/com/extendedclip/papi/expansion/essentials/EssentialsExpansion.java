@@ -166,11 +166,15 @@ public class EssentialsExpansion extends PlaceholderExpansion {
 			return essentials.getUser(p).isAcceptingPay() ? PlaceholderAPIPlugin.booleanTrue() : PlaceholderAPIPlugin.booleanFalse();
 		case "is_teleport_enabled":
 			return essentials.getUser(p).isTeleportEnabled() ? PlaceholderAPIPlugin.booleanTrue() : PlaceholderAPIPlugin.booleanFalse();
+        case "is_muted":
+            return essentials.getUser(p).isMuted() ? PlaceholderAPIPlugin.booleanTrue() : PlaceholderAPIPlugin.booleanFalse();
 		case "vanished":
 			return essentials.getUser(p).isVanished() ? PlaceholderAPIPlugin.booleanTrue() : PlaceholderAPIPlugin.booleanFalse();
 		case "afk":
 			return essentials.getUser(p).isAfk() ? PlaceholderAPIPlugin.booleanTrue() : PlaceholderAPIPlugin.booleanFalse();
-		case "fly":
+        case "msg_ignore":
+            return essentials.getUser(p).isIgnoreMsg() ? PlaceholderAPIPlugin.booleanTrue() : PlaceholderAPIPlugin.booleanFalse();
+        case "fly":
 			return essentials.getUser(p).isFlyClickJump() ? PlaceholderAPIPlugin.booleanTrue() : PlaceholderAPIPlugin.booleanFalse();
 		case "nickname":
 			return essentials.getUser(p).getNickname() != null ? essentials.getUser(p).getNickname() : p.getName();
@@ -178,6 +182,10 @@ public class EssentialsExpansion extends PlaceholderExpansion {
 			return essentials.getUser(p).isGodModeEnabled() ? PlaceholderAPIPlugin.booleanTrue() : PlaceholderAPIPlugin.booleanFalse();
 		case "unique":
 			return NumberFormat.getInstance().format(essentials.getUserMap().getUniqueUsers());
+		case "homes_set":
+            return essentials.getUser(p).getHomes().size() == 0 ? String.valueOf(0) : String.valueOf(essentials.getUser(p).getHomes().size());
+        case "homes_max":
+            return String.valueOf(essentials.getSettings().getHomeLimit(essentials.getUser(p)));
 		case "jailed":
 			return String.valueOf(essentials.getUser(p).isJailed());
 		case "pm_recipient":

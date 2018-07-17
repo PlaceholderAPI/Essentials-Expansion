@@ -16,11 +16,7 @@
             <url>http://repo.extendedclip.com/content/repositories/placeholderapi/</url>
         </repository>
         <repository>
-            <id>clips-public-repo</id>
-            <url>http://repo.extendedclip.com/content/repositories/public/</url>
-        </repository>
-        <repository>
-            <id>Essentials Repo</id>
+            <id>ess-repo</id>
             <url>https://ci.ender.zone/plugin/repository/everything/</url>
         </repository>
     </repositories>
@@ -39,10 +35,10 @@
          <scope>provided</scope>
         </dependency>
         <dependency>
-         <groupId>net.ess3</groupId>
-          <artifactId>EssentialsX</artifactId>
-          <version>2.0.1</version>
-         <scope>provided</scope>
+            <groupId>net.ess3</groupId>
+            <artifactId>EssentialsX</artifactId>
+            <version>2.0.1</version>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
     
