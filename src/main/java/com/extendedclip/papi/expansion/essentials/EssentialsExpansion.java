@@ -20,6 +20,7 @@
  */
 package com.extendedclip.papi.expansion.essentials;
 
+import java.text.NumberFormat;
 import java.util.Date;
 
 import me.clip.placeholderapi.PlaceholderAPIPlugin;
@@ -175,6 +176,8 @@ public class EssentialsExpansion extends PlaceholderExpansion {
 			return essentials.getUser(p).getNickname() != null ? essentials.getUser(p).getNickname() : p.getName();
 		case "godmode":
 			return essentials.getUser(p).isGodModeEnabled() ? PlaceholderAPIPlugin.booleanTrue() : PlaceholderAPIPlugin.booleanFalse();
+		case "unique":
+			return NumberFormat.getInstance().format(essentials.getUserMap().getUniqueUsers());
 		case "jailed":
 			return String.valueOf(essentials.getUser(p).isJailed());
 		case "pm_recipient":
