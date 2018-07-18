@@ -78,10 +78,8 @@ public class EssentialsExpansion extends PlaceholderExpansion {
 	public String onPlaceholderRequest(Player p, String identifier) {
 
 
-		
-		if (p == null) {
-			return "";
-		}
+
+		if (p == null) return "";
 		
 		if (identifier.startsWith("kit_last_use_")) {
 			String kit = identifier.split("kit_last_use_")[1];
@@ -190,15 +188,9 @@ public class EssentialsExpansion extends PlaceholderExpansion {
 			return String.valueOf(essentials.getUser(p).isJailed());
 		case "pm_recipient":
 			User u = essentials.getUser(p);
-			if (u.getReplyRecipient() != null) {				
-				return u.getReplyRecipient().getName();
-			} else {
-				return "";
-			}
-		}
-		// Adds placeholder to get count of online players not including vanished players
-		if (identifier.equals("safe_online")) {
-		    return String.valueOf((essentials.getOnlinePlayers().size() - essentials.getVanishedPlayers().size()));
+			return u.getReplyRecipient() != null ? u.getReplyRecipient().getName() : "";
+		case "safe_online":
+			return String.valueOf((essentials.getOnlinePlayers().size() - essentials.getVanishedPlayers().size()));
 		}
 		return null;
 	}
