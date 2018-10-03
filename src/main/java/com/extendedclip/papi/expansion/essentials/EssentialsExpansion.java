@@ -23,10 +23,12 @@ package com.extendedclip.papi.expansion.essentials;
 import com.earth2me.essentials.Essentials;
 import com.earth2me.essentials.Kit;
 import com.earth2me.essentials.User;
+import com.google.common.primitives.Ints;
 import me.clip.placeholderapi.PlaceholderAPIPlugin;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import me.clip.placeholderapi.util.TimeUtil;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
 import java.text.NumberFormat;
@@ -35,14 +37,14 @@ import java.util.Date;
 public class EssentialsExpansion extends PlaceholderExpansion {
 
 	private Essentials essentials;
-	
+
 	private final String VERSION = getClass().getPackage().getImplementationVersion();
-	
+
 	@Override
 	public boolean canRegister() {
 		return Bukkit.getPluginManager().getPlugin("Essentials") != null;
 	}
-	
+
 	@Override
 	public boolean register() {
 		essentials = (Essentials) Bukkit.getPluginManager().getPlugin(getPlugin());
@@ -78,83 +80,83 @@ public class EssentialsExpansion extends PlaceholderExpansion {
 
 
 		if (p == null) return "";
-		
+
 		if (identifier.startsWith("kit_last_use_")) {
 			String kit = identifier.split("kit_last_use_")[1];
-			
+
 			Kit k = null;
-			
+
 			try {
 				k = new Kit(kit, essentials);
 			} catch (Exception e) {
 				return "invalid kit";
 			}
-			
+
 			long time = essentials.getUser(p).getKitTimestamp(k.getName());
-			
+
 			if (time == 1 || time <= 0) {
 				return "1";
 			}
 			return PlaceholderAPIPlugin.getDateFormat().format(new Date(time));
 		}
-		
+
 		if (identifier.startsWith("kit_is_available_")) {
 			String kit = identifier.split("kit_is_available_")[1];
-			
+
 			Kit k = null;
-			
+
 			User u = essentials.getUser(p);
-			
+
 			try {
 				k = new Kit(kit, essentials);
 			} catch (Exception e) {
 				return PlaceholderAPIPlugin.booleanFalse();
 			}
-			
+
 			long time = -1   ;
-			
+
 			try {
 				time = k.getNextUse(u);
 			} catch (Exception e) {
 				return PlaceholderAPIPlugin.booleanFalse();
 			}
-			
+
 			return time == 0 ? PlaceholderAPIPlugin.booleanTrue() : PlaceholderAPIPlugin.booleanFalse();
 		}
-		
+
 		if (identifier.startsWith("kit_time_until_available_")) {
 			String kit = identifier.split("kit_time_until_available_")[1];
-			
+
 			Kit k = null;
-			
+
 			User u = essentials.getUser(p);
-			
+
 			try {
 				k = new Kit(kit, essentials);
 			} catch (Exception e) {
 				return PlaceholderAPIPlugin.booleanFalse();
 			}
-			
+
 			long time = -1;
-			
+
 			try {
 				time = k.getNextUse(u);
 			} catch (Exception e) {
 				return "-1";
 			}
 			int seconds = (int)(time - System.currentTimeMillis())/1000;
-			
+
 			if (seconds <= 0) {
 				return "0";
 			}
 			return TimeUtil.getTime(seconds);
 		}
-		
+
 		if (identifier.startsWith("has_kit_")) {
 			String kit = identifier.split("has_kit_")[1];
 			return p.hasPermission("essentials.kits." + kit) ? PlaceholderAPIPlugin.booleanTrue() : PlaceholderAPIPlugin.booleanFalse();
 		}
-		
+
 		switch (identifier) {
 		case "is_pay_confirm":
 			return essentials.getUser(p).isPromptingPayConfirm() ? PlaceholderAPIPlugin.booleanTrue() : PlaceholderAPIPlugin.booleanFalse();
@@ -193,17 +195,17 @@ public class EssentialsExpansion extends PlaceholderExpansion {
 
 		if (identifier.startsWith("home_")) {
 
-			// Removes all the letters from the identifier to get the home slot.
-			String homeNumberString = identifier.replaceAll("\\D+", "");
+            Integer homeNumber;
 
-			// Checks if the number slot is an integer or not.
-			if (!isStringInt(homeNumberString)) return null;
+            // Removes all the letters from the identifier to get the home slot.
+            // Checks if the number slot is an integer or not.
+            if ((homeNumber = Ints.tryParse(identifier.replaceAll("\\D+", ""))) == null) return null;
 
-			// Since it is easier for users to type from 1-x I subtract one from the original number to work from 0-x.
-			int homeNumber = Integer.parseInt(homeNumberString) - 1;
+            // Since it is easier for users to type from 1-x I subtract one from the original number to work from 0-x.
+            homeNumber -= 1;
 
 			// checks if the home is out of bounds and returns and empty string if it is.
-			if (homeNumber >= essentials.getUser(p).getHomes().size()) return "";
+			if (homeNumber >= essentials.getUser(p).getHomes().size() || homeNumber < 0) return "";
 
 			// checks if the identifier matches the pattern home_%d
 			if (identifier.matches("(\\w+_)(\\d)")) return getHomeName(p, homeNumber);
@@ -211,32 +213,27 @@ public class EssentialsExpansion extends PlaceholderExpansion {
 			//checks if the identifier matches the pattern home_%d_(x/y/z)
 			if (identifier.matches("(\\w+_)(\\d)(_\\w)")) {
 
-			    /* I know it looks ugly with all the try and catch but essentials requires it on the getHome() method */
+                try {
+                    Location home = essentials.getUser(p).getHome(getHomeName(p, homeNumber));
+                    String data = "";
 
-				if (identifier.endsWith("_x")) {
-					try {
-						return String.valueOf(round(essentials.getUser(p).getHome(getHomeName(p, homeNumber)).getX())) + ".5";
-					} catch (Exception e) {
-						return null;
-					}
-				}
+                    switch (identifier.charAt(identifier.length() - 1)) {
+                        case 'x':
+                            data = String.valueOf(round(home.getX())) + ".5";
+                            break;
+                        case 'y':
+                            data = String.valueOf(round(home.getY()));
+                            break;
+                        case 'z':
+                            data = String.valueOf(round(home.getZ())) + ".5";
+                            break;
+                    }
 
-				if (identifier.endsWith("_y")) {
-					try {
-						return String.valueOf(round(essentials.getUser(p).getHome(getHomeName(p, homeNumber)).getY())) + ".5";
-					} catch (Exception e) {
-						return null;
-					}
-				}
-
-				if (identifier.endsWith("_z")) {
-					try {
-						return String.valueOf(round(essentials.getUser(p).getHome(getHomeName(p, homeNumber)).getZ())) + ".5";
-					} catch (Exception e) {
-						return null;
-					}
-				}
-			}
+                    return data;
+                } catch (Exception e) {
+                    return null;
+                }
+            }
 
 			return null;
 
@@ -257,21 +254,6 @@ public class EssentialsExpansion extends PlaceholderExpansion {
 	}
 
 	/**
-	 * Checks if the string passed is an integer number to avoid errors.
-	 *
-	 * @param string The string to be checked.
-	 * @return True if it is a number and false if not.
-	 */
-	private boolean isStringInt(String string) {
-		try {
-			Integer.parseInt(string);
-			return true;
-		} catch (NumberFormatException e) {
-			return false;
-		}
-	}
-
-	/**
 	 * Rounds up the home coords, because of home essentials handle their homes.
 	 * Even though they store the full value of the home, when a player teleports to it, they go to the center of the block.
 	 * This method removes the decimal places from a number to be able to center it.
@@ -282,8 +264,8 @@ public class EssentialsExpansion extends PlaceholderExpansion {
 	private int round(double d) {
 		return (int) d;
 	}
-	
-	
-	
-	
+
+
+
+
 }
