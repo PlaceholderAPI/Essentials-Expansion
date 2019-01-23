@@ -29,6 +29,7 @@ import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import me.clip.placeholderapi.util.TimeUtil;
 
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 
@@ -172,6 +173,8 @@ public class EssentialsExpansion extends PlaceholderExpansion {
 			return essentials.getUser(p).isVanished() ? PlaceholderAPIPlugin.booleanTrue() : PlaceholderAPIPlugin.booleanFalse();
 		case "afk":
 			return essentials.getUser(p).isAfk() ? PlaceholderAPIPlugin.booleanTrue() : PlaceholderAPIPlugin.booleanFalse();
+		case "afk_reason":
+			return ChatColor.translateAlternateColorCodes('&', essentials.getUser(p).getAfkMessage());
         case "msg_ignore":
             return essentials.getUser(p).isIgnoreMsg() ? PlaceholderAPIPlugin.booleanTrue() : PlaceholderAPIPlugin.booleanFalse();
         case "fly":
