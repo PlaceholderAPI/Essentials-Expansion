@@ -20,6 +20,7 @@
  */
 package com.extendedclip.papi.expansion.essentials;
 
+import java.math.BigDecimal;
 import java.text.NumberFormat;
 import java.util.Date;
 
@@ -28,6 +29,7 @@ import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import me.clip.placeholderapi.util.TimeUtil;
 
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
 
 import com.earth2me.essentials.Essentials;
@@ -191,6 +193,11 @@ public class EssentialsExpansion extends PlaceholderExpansion {
 			return u.getReplyRecipient() != null ? u.getReplyRecipient().getName() : "";
 		case "safe_online":
 			return String.valueOf((essentials.getOnlinePlayers().size() - essentials.getVanishedPlayers().size()));
+		case "worth":
+			if (p.getItemInHand() == null || p.getItemInHand().getType() == Material.AIR) return "";
+			BigDecimal worth = essentials.getWorth().getPrice(null, p.getItemInHand());
+			if (worth == null) return "";
+			return String.valueOf(worth.doubleValue());
 		}
 		return null;
 	}
