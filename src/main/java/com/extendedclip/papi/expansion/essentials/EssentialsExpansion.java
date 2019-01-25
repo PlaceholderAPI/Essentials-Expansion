@@ -174,6 +174,7 @@ public class EssentialsExpansion extends PlaceholderExpansion {
 		case "afk":
 			return essentials.getUser(p).isAfk() ? PlaceholderAPIPlugin.booleanTrue() : PlaceholderAPIPlugin.booleanFalse();
 		case "afk_reason":
+			if (essentials.getUser(p).getAfkMessage() == null) return "";
 			return ChatColor.translateAlternateColorCodes('&', essentials.getUser(p).getAfkMessage());
         case "msg_ignore":
             return essentials.getUser(p).isIgnoreMsg() ? PlaceholderAPIPlugin.booleanTrue() : PlaceholderAPIPlugin.booleanFalse();
