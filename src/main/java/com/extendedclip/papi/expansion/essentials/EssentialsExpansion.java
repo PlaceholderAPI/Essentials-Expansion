@@ -196,7 +196,13 @@ public class EssentialsExpansion extends PlaceholderExpansion {
 			User u = essentials.getUser(p);
 			return u.getReplyRecipient() != null ? u.getReplyRecipient().getName() : "";
 		case "safe_online":
-			return String.valueOf((essentials.getOnlinePlayers().size() - essentials.getVanishedPlayers().size()));
+			int playerHidden = 0;
+			for (User onlinePlayer : essentials.getOnlineUsers()) {
+				if (onlinePlayer.isHidden()) {
+					playerHidden++;
+				}
+			}
+			return String.valueOf((essentials.getOnlinePlayers().size() - playerHidden));
 		case "worth":
 			if (p.getItemInHand() == null || p.getItemInHand().getType() == Material.AIR) return "";
 			BigDecimal worth = essentials.getWorth().getPrice(null, p.getItemInHand());
