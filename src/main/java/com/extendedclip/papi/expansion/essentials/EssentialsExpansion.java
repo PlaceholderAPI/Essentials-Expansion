@@ -40,14 +40,14 @@ import com.earth2me.essentials.User;
 public class EssentialsExpansion extends PlaceholderExpansion {
 
 	private Essentials essentials;
-	
+
 	private final String VERSION = getClass().getPackage().getImplementationVersion();
-	
+
 	@Override
 	public boolean canRegister() {
 		return Bukkit.getPluginManager().getPlugin("Essentials") != null;
 	}
-	
+
 	@Override
 	public boolean register() {
 		essentials = (Essentials) Bukkit.getPluginManager().getPlugin(getPlugin());
@@ -83,83 +83,83 @@ public class EssentialsExpansion extends PlaceholderExpansion {
 
 
 		if (p == null) return "";
-		
+
 		if (identifier.startsWith("kit_last_use_")) {
 			String kit = identifier.split("kit_last_use_")[1];
-			
+
 			Kit k = null;
-			
+
 			try {
 				k = new Kit(kit, essentials);
 			} catch (Exception e) {
 				return "invalid kit";
 			}
-			
+
 			long time = essentials.getUser(p).getKitTimestamp(k.getName());
-			
+
 			if (time == 1 || time <= 0) {
 				return "1";
 			}
 			return PlaceholderAPIPlugin.getDateFormat().format(new Date(time));
 		}
-		
+
 		if (identifier.startsWith("kit_is_available_")) {
 			String kit = identifier.split("kit_is_available_")[1];
-			
+
 			Kit k = null;
-			
+
 			User u = essentials.getUser(p);
-			
+
 			try {
 				k = new Kit(kit, essentials);
 			} catch (Exception e) {
 				return PlaceholderAPIPlugin.booleanFalse();
 			}
-			
+
 			long time = -1   ;
-			
+
 			try {
 				time = k.getNextUse(u);
 			} catch (Exception e) {
 				return PlaceholderAPIPlugin.booleanFalse();
 			}
-			
+
 			return time == 0 ? PlaceholderAPIPlugin.booleanTrue() : PlaceholderAPIPlugin.booleanFalse();
 		}
-		
+
 		if (identifier.startsWith("kit_time_until_available_")) {
 			String kit = identifier.split("kit_time_until_available_")[1];
-			
+
 			Kit k = null;
-			
+
 			User u = essentials.getUser(p);
-			
+
 			try {
 				k = new Kit(kit, essentials);
 			} catch (Exception e) {
 				return PlaceholderAPIPlugin.booleanFalse();
 			}
-			
+
 			long time = -1;
-			
+
 			try {
 				time = k.getNextUse(u);
 			} catch (Exception e) {
 				return "-1";
 			}
 			int seconds = (int)(time - System.currentTimeMillis())/1000;
-			
+
 			if (seconds <= 0) {
 				return "0";
 			}
 			return TimeUtil.getTime(seconds);
 		}
-		
+
 		if (identifier.startsWith("has_kit_")) {
 			String kit = identifier.split("has_kit_")[1];
 			return p.hasPermission("essentials.kits." + kit) ? PlaceholderAPIPlugin.booleanTrue() : PlaceholderAPIPlugin.booleanFalse();
 		}
-		
+
 		switch (identifier) {
 		case "is_pay_confirm":
 			return essentials.getUser(p).isPromptingPayConfirm() ? PlaceholderAPIPlugin.booleanTrue() : PlaceholderAPIPlugin.booleanFalse();
@@ -167,8 +167,8 @@ public class EssentialsExpansion extends PlaceholderExpansion {
 			return essentials.getUser(p).isAcceptingPay() ? PlaceholderAPIPlugin.booleanTrue() : PlaceholderAPIPlugin.booleanFalse();
 		case "is_teleport_enabled":
 			return essentials.getUser(p).isTeleportEnabled() ? PlaceholderAPIPlugin.booleanTrue() : PlaceholderAPIPlugin.booleanFalse();
-        case "is_muted":
-            return essentials.getUser(p).isMuted() ? PlaceholderAPIPlugin.booleanTrue() : PlaceholderAPIPlugin.booleanFalse();
+		case "is_muted":
+			return essentials.getUser(p).isMuted() ? PlaceholderAPIPlugin.booleanTrue() : PlaceholderAPIPlugin.booleanFalse();
 		case "vanished":
 			return essentials.getUser(p).isVanished() ? PlaceholderAPIPlugin.booleanTrue() : PlaceholderAPIPlugin.booleanFalse();
 		case "afk":
@@ -176,9 +176,9 @@ public class EssentialsExpansion extends PlaceholderExpansion {
 		case "afk_reason":
 			if (essentials.getUser(p).getAfkMessage() == null) return "";
 			return ChatColor.translateAlternateColorCodes('&', essentials.getUser(p).getAfkMessage());
-        case "msg_ignore":
-            return essentials.getUser(p).isIgnoreMsg() ? PlaceholderAPIPlugin.booleanTrue() : PlaceholderAPIPlugin.booleanFalse();
-        case "fly":
+		case "msg_ignore":
+			return essentials.getUser(p).isIgnoreMsg() ? PlaceholderAPIPlugin.booleanTrue() : PlaceholderAPIPlugin.booleanFalse();
+		case "fly":
 			return essentials.getUser(p).isFlyClickJump() ? PlaceholderAPIPlugin.booleanTrue() : PlaceholderAPIPlugin.booleanFalse();
 		case "nickname":
 			return essentials.getUser(p).getNickname() != null ? essentials.getUser(p).getNickname() : p.getName();
@@ -187,16 +187,22 @@ public class EssentialsExpansion extends PlaceholderExpansion {
 		case "unique":
 			return NumberFormat.getInstance().format(essentials.getUserMap().getUniqueUsers());
 		case "homes_set":
-            return essentials.getUser(p).getHomes().size() == 0 ? String.valueOf(0) : String.valueOf(essentials.getUser(p).getHomes().size());
-        case "homes_max":
-            return String.valueOf(essentials.getSettings().getHomeLimit(essentials.getUser(p)));
+			return essentials.getUser(p).getHomes().size() == 0 ? String.valueOf(0) : String.valueOf(essentials.getUser(p).getHomes().size());
+		case "homes_max":
+			return String.valueOf(essentials.getSettings().getHomeLimit(essentials.getUser(p)));
 		case "jailed":
 			return String.valueOf(essentials.getUser(p).isJailed());
 		case "pm_recipient":
 			User u = essentials.getUser(p);
 			return u.getReplyRecipient() != null ? u.getReplyRecipient().getName() : "";
 		case "safe_online":
-			return String.valueOf((essentials.getOnlinePlayers().size() - essentials.getVanishedPlayers().size()));
+			int playerHidden = 0;
+			for (User onlinePlayer : essentials.getOnlineUsers()) {
+				if (onlinePlayer.isHidden()) {
+					playerHidden++;
+				}
+			}
+			return String.valueOf((essentials.getOnlinePlayers().size() - playerHidden));
 		case "worth":
 			if (p.getItemInHand() == null || p.getItemInHand().getType() == Material.AIR) return "";
 			BigDecimal worth = essentials.getWorth().getPrice(null, p.getItemInHand());
@@ -205,8 +211,8 @@ public class EssentialsExpansion extends PlaceholderExpansion {
 		}
 		return null;
 	}
-	
-	
-	
-	
+
+
+
+
 }
