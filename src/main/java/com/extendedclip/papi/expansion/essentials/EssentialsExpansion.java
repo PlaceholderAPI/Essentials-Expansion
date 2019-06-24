@@ -1,7 +1,7 @@
 /*
  *
  * Essentials-Expansion
- * Copyright (C) 2018 Ryan McCarthy
+ * Copyright (C) 2019 Ryan McCarthy
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -50,7 +50,7 @@ public class EssentialsExpansion extends PlaceholderExpansion {
 	
 	@Override
 	public boolean register() {
-		essentials = (Essentials) Bukkit.getPluginManager().getPlugin(getPlugin());
+		essentials = (Essentials) Bukkit.getPluginManager().getPlugin("Essentials");
 		if (essentials != null) {
 			return super.register();
 		}
@@ -65,11 +65,6 @@ public class EssentialsExpansion extends PlaceholderExpansion {
 	@Override
 	public String getIdentifier() {
 		return "essentials";
-	}
-
-	@Override
-	public String getPlugin() {
-		return "Essentials";
 	}
 
 	@Override
@@ -116,7 +111,7 @@ public class EssentialsExpansion extends PlaceholderExpansion {
 				return PlaceholderAPIPlugin.booleanFalse();
 			}
 			
-			long time = -1   ;
+			long time = -1;
 			
 			try {
 				time = k.getNextUse(u);
@@ -149,7 +144,7 @@ public class EssentialsExpansion extends PlaceholderExpansion {
 			}
 			int seconds = (int)(time - System.currentTimeMillis())/1000;
 			
-			if (seconds <= 0) {
+			if (seconds <= 0 || time == 0) {
 				return "0";
 			}
 			return TimeUtil.getTime(seconds);
