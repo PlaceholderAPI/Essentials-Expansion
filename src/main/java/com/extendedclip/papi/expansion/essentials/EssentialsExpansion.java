@@ -116,7 +116,7 @@ public class EssentialsExpansion extends PlaceholderExpansion {
 				return PlaceholderAPIPlugin.booleanFalse();
 			}
 			
-			long time = -1   ;
+			long time = -1;
 			
 			try {
 				time = k.getNextUse(u);
@@ -149,7 +149,7 @@ public class EssentialsExpansion extends PlaceholderExpansion {
 			}
 			int seconds = (int)(time - System.currentTimeMillis())/1000;
 			
-			if (seconds <= 0) {
+			if (seconds <= 0 || time == 0) {
 				return "0";
 			}
 			return TimeUtil.getTime(seconds);
