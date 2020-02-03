@@ -174,7 +174,7 @@ public class EssentialsExpansion extends PlaceholderExpansion {
         case "msg_ignore":
             return essentials.getUser(p).isIgnoreMsg() ? PlaceholderAPIPlugin.booleanTrue() : PlaceholderAPIPlugin.booleanFalse();
         case "fly":
-			return essentials.getUser(p).isFlyClickJump() ? PlaceholderAPIPlugin.booleanTrue() : PlaceholderAPIPlugin.booleanFalse();
+			return essentials.getUser(p).getBase().getAllowFlight() ? PlaceholderAPIPlugin.booleanTrue() : PlaceholderAPIPlugin.booleanFalse();
 		case "nickname":
 			return essentials.getUser(p).getNickname() != null ? essentials.getUser(p).getNickname() : p.getName();
 		case "godmode":
