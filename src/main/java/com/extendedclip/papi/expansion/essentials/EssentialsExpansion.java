@@ -78,7 +78,7 @@ public class EssentialsExpansion extends PlaceholderExpansion {
 		if (p == null) return "";
 		
 		if (identifier.startsWith("kit_last_use_")) {
-			String kit = identifier.split("kit_last_use_")[1];
+			String kit = identifier.split("kit_last_use_")[1].toLowerCase();
 			
 			Kit k;
 			
@@ -97,7 +97,7 @@ public class EssentialsExpansion extends PlaceholderExpansion {
 		}
 		
 		if (identifier.startsWith("kit_is_available_")) {
-			String kit = identifier.split("kit_is_available_")[1];
+			String kit = identifier.split("kit_is_available_")[1].toLowerCase();
 			
 			Kit k;
 			
@@ -121,7 +121,7 @@ public class EssentialsExpansion extends PlaceholderExpansion {
 		}
 		
 		if (identifier.startsWith("kit_time_until_available_")) {
-			String kit = identifier.split("kit_time_until_available_")[1];
+			String kit = identifier.split("kit_time_until_available_")[1].toLowerCase();
 			
 			Kit k;
 			
