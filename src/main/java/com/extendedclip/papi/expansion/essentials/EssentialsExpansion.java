@@ -23,11 +23,13 @@ package com.extendedclip.papi.expansion.essentials;
 import com.earth2me.essentials.Essentials;
 import com.earth2me.essentials.Kit;
 import com.earth2me.essentials.User;
+import com.google.common.primitives.Ints;
 import me.clip.placeholderapi.PlaceholderAPIPlugin;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import me.clip.placeholderapi.util.TimeUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 
@@ -201,7 +203,74 @@ public class EssentialsExpansion extends PlaceholderExpansion {
                 if (worth == null) return "";
                 return String.valueOf(worth.doubleValue());
         }
+
+        if (identifier.startsWith("home_")) {
+            Integer homeNumber;
+
+            // Removes all the letters from the identifier to get the home slot.
+            // Checks if the number slot is an integer or not.
+            // noinspection UnstableApiUsage
+            if ((homeNumber = Ints.tryParse(identifier.replaceAll("\\D+", ""))) == null) return null;
+
+            // Since it is easier for users to type from 1-x I subtract one from the original number to work from 0-x.
+            homeNumber -= 1;
+
+            // checks if the home is out of bounds and returns and empty string if it is.
+            if (homeNumber >= essentials.getUser(p).getHomes().size() || homeNumber < 0) return "";
+
+            // checks if the identifier matches the pattern home_%d
+            if (identifier.matches("(\\w+_)(\\d)")) return getHomeName(p, homeNumber);
+
+            //checks if the identifier matches the pattern home_%d_(x/y/z)
+            if (identifier.matches("(\\w+_)(\\d)(_\\w)")) {
+
+                try {
+                    final Location home = essentials.getUser(p).getHome(getHomeName(p, homeNumber));
+                    final StringBuilder stringBuilder = new StringBuilder();
+
+                    switch (identifier.charAt(identifier.length() - 1)) {
+                        case 'x':
+                            stringBuilder.append(home.getX()).append(".5");
+                            break;
+                        case 'y':
+                            stringBuilder.append(round(home.getY()));
+                            break;
+                        case 'z':
+                            stringBuilder.append(home.getZ()).append(".5");
+                            break;
+                    }
+
+                    return stringBuilder.toString();
+                } catch (Exception e) {
+                    return null;
+                }
+            }
+        }
+
         return null;
+    }
+
+    /**
+     * Gets the name of the player's home.
+     *
+     * @param player The player to get it from.
+     * @param index  The home slot got from essentials_home_%d
+     * @return Returns the name of the home.
+     */
+    private String getHomeName(Player player, int index) {
+        return essentials.getUser(player).getHomes().get(index);
+    }
+
+    /**
+     * Rounds up the home coords, because of home essentials handle their homes.
+     * Even though they store the full value of the home, when a player teleports to it, they go to the center of the block.
+     * This method removes the decimal places from a number to be able to center it.
+     *
+     * @param coord The double coord to be rounded.
+     * @return Returns the integer value only, e.g: 10.9 would return 10.
+     */
+    private int round(double coord) {
+        return (int) coord;
     }
 
 
