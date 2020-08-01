@@ -29,6 +29,7 @@ import me.clip.placeholderapi.util.TimeUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 
 import java.math.BigDecimal;
@@ -71,7 +72,8 @@ public class EssentialsExpansion extends PlaceholderExpansion {
     }
 
     @Override
-    public String onPlaceholderRequest(Player p, String identifier) {
+    public String onRequest(OfflinePlayer p, String identifier) {
+        final Player player = (Player) p;
 
         if (p == null) return "";
 
@@ -148,7 +150,7 @@ public class EssentialsExpansion extends PlaceholderExpansion {
 
         if (identifier.startsWith("has_kit_")) {
             String kit = identifier.split("has_kit_")[1];
-            return p.hasPermission("essentials.kits." + kit) ? PlaceholderAPIPlugin.booleanTrue() : PlaceholderAPIPlugin.booleanFalse();
+            return player.hasPermission("essentials.kits." + kit) ? PlaceholderAPIPlugin.booleanTrue() : PlaceholderAPIPlugin.booleanFalse();
         }
 
         final User user = essentials.getUser(p);
@@ -196,8 +198,8 @@ public class EssentialsExpansion extends PlaceholderExpansion {
                 }
                 return String.valueOf((essentials.getOnlinePlayers().size() - playerHidden));
             case "worth":
-                if (p.getItemInHand() == null || p.getItemInHand().getType() == Material.AIR) return "";
-                BigDecimal worth = essentials.getWorth().getPrice(null, p.getItemInHand());
+                if (player.getItemInHand() == null || player.getItemInHand().getType() == Material.AIR) return "";
+                BigDecimal worth = essentials.getWorth().getPrice(null, player.getItemInHand());
                 if (worth == null) return "";
                 return String.valueOf(worth.doubleValue());
         }
