@@ -191,7 +191,7 @@ public class EssentialsExpansion extends PlaceholderExpansion {
                 return user.getReplyRecipient() != null ? user.getReplyRecipient().getName() : "";
             case "safe_online":
                 int playerHidden = 0;
-                for (User onlinePlayer : essentials.getOnlineUsers()) {
+                for (final User onlinePlayer : essentials.getOnlineUsers()) {
                     if (onlinePlayer.isHidden()) {
                         playerHidden++;
                     }
