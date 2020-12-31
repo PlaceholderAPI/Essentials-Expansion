@@ -176,7 +176,9 @@ public class EssentialsExpansion extends PlaceholderExpansion {
             case "fly":
                 return user.getBase().getAllowFlight() ? PlaceholderAPIPlugin.booleanTrue() : PlaceholderAPIPlugin.booleanFalse();
             case "nickname":
-                return user.getNickname() != null ? essentials.getUser(p).getNickname() : p.getName();
+                return user.getNickname() != null ? user.getNickname() : p.getName();
+            case "nickname_stripped":
+                return user.getNickname() != null ? ChatColor.stripColor(user.getNickname()) : p.getName();
             case "godmode":
                 return user.isGodModeEnabled() ? PlaceholderAPIPlugin.booleanTrue() : PlaceholderAPIPlugin.booleanFalse();
             case "unique":
