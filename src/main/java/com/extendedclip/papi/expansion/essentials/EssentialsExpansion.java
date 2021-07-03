@@ -37,6 +37,7 @@ import org.bukkit.inventory.ItemStack;
 import java.math.BigDecimal;
 import java.text.NumberFormat;
 import java.util.Date;
+import java.util.stream.StreamSupport;
 
 public class EssentialsExpansion extends PlaceholderExpansion {
 
@@ -187,7 +188,9 @@ public class EssentialsExpansion extends PlaceholderExpansion {
                 if (user.getAfkMessage() == null) return "";
                 return ChatColor.translateAlternateColorCodes('&', user.getAfkMessage());
             case "afk_player_count":
-                return String.valueOf(essentials.getUserMap().getAllUniqueUsers().stream().map(UUID -> essentials.getUser(UUID)).filter(User::isAfk).count());
+                return String.valueOf(essentials.getUserMap().getAllUniqueUsers().stream()
+                        .map(UUID -> essentials.getUser(UUID)).filter(User::isAfk)
+                        .count());
             case "msg_ignore":
                 return user.isIgnoreMsg() ? PlaceholderAPIPlugin.booleanTrue() : PlaceholderAPIPlugin.booleanFalse();
             case "fly":
@@ -209,13 +212,9 @@ public class EssentialsExpansion extends PlaceholderExpansion {
             case "pm_recipient":
                 return user.getReplyRecipient() != null ? user.getReplyRecipient().getName() : "";
             case "safe_online":
-                int playerHidden = 0;
-                for (final User onlinePlayer : essentials.getOnlineUsers()) {
-                    if (onlinePlayer.isHidden()) {
-                        playerHidden++;
-                    }
-                }
-                return String.valueOf((essentials.getOnlinePlayers().size() - playerHidden));
+                return String.valueOf(StreamSupport.stream(essentials.getOnlineUsers().spliterator(), false)
+                        .filter(user1 -> !user1.isHidden())
+                        .count());
         }
         return null;
     }
