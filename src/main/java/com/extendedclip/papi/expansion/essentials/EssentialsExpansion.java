@@ -30,7 +30,9 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
+import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 
 import java.math.BigDecimal;
 import java.text.NumberFormat;
@@ -151,6 +153,19 @@ public class EssentialsExpansion extends PlaceholderExpansion {
         if (identifier.startsWith("has_kit_")) {
             String kit = identifier.split("has_kit_")[1];
             return player.hasPermission("essentials.kits." + kit) ? PlaceholderAPIPlugin.booleanTrue() : PlaceholderAPIPlugin.booleanFalse();
+        } else if (identifier.startsWith("worth")){
+            ItemStack item = player.getItemInHand();
+            if (identifier.contains(":")){
+                Material material = Material.getMaterial(identifier.replace("worth:", "").toUpperCase());
+                if (material == null) return "";
+                item = new ItemStack(material,1);
+            } else {
+                if (player.getItemInHand() == null || player.getItemInHand().getType() == Material.AIR) return "";
+                item = player.getItemInHand();
+            }
+            BigDecimal worth = essentials.getWorth().getPrice(null, item);
+            if (worth == null) return "";
+            return String.valueOf(worth.doubleValue());
         }
 
         final User user = essentials.getUser(p);
@@ -197,11 +212,6 @@ public class EssentialsExpansion extends PlaceholderExpansion {
                     }
                 }
                 return String.valueOf((essentials.getOnlinePlayers().size() - playerHidden));
-            case "worth":
-                if (player.getItemInHand() == null || player.getItemInHand().getType() == Material.AIR) return "";
-                BigDecimal worth = essentials.getWorth().getPrice(null, player.getItemInHand());
-                if (worth == null) return "";
-                return String.valueOf(worth.doubleValue());
         }
         return null;
     }
