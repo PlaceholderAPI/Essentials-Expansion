@@ -23,19 +23,21 @@ package com.extendedclip.papi.expansion.essentials;
 import com.earth2me.essentials.Essentials;
 import com.earth2me.essentials.Kit;
 import com.earth2me.essentials.User;
+import com.earth2me.essentials.utils.DateUtil;
 import me.clip.placeholderapi.PlaceholderAPIPlugin;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
-import me.clip.placeholderapi.util.TimeUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
-import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.jetbrains.annotations.NotNull;
 
 import java.math.BigDecimal;
 import java.text.NumberFormat;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.Date;
 import java.util.stream.StreamSupport;
 
@@ -60,38 +62,37 @@ public class EssentialsExpansion extends PlaceholderExpansion {
     }
 
     @Override
-    public String getAuthor() {
+    public @NotNull String getAuthor() {
         return "clip";
     }
 
     @Override
-    public String getIdentifier() {
+    public @NotNull String getIdentifier() {
         return "essentials";
     }
 
     @Override
-    public String getVersion() {
+    public @NotNull String getVersion() {
         return VERSION;
     }
 
     @Override
-    public String onRequest(OfflinePlayer p, String identifier) {
-        final Player player = (Player) p;
+    public String onRequest(OfflinePlayer givenPlayer, @NotNull String identifier) {
+        final Player player = (Player) givenPlayer;
 
-        if (p == null) return "";
+        if (givenPlayer == null) return "";
 
         if (identifier.startsWith("kit_last_use_")) {
-            String kit = identifier.split("kit_last_use_")[1].toLowerCase();
-
-            Kit k;
+            String kitName = identifier.split("kit_last_use_")[1].toLowerCase();
+            Kit kit;
 
             try {
-                k = new Kit(kit, essentials);
+                kit = new Kit(kitName, essentials);
             } catch (Exception e) {
-                return "invalid kit";
+                return "Invalid kit name";
             }
 
-            long time = essentials.getUser(p).getKitTimestamp(k.getName());
+            long time = essentials.getUser(player.getUniqueId()).getKitTimestamp(kit.getName());
 
             if (time == 1 || time <= 0) {
                 return "1";
@@ -100,22 +101,19 @@ public class EssentialsExpansion extends PlaceholderExpansion {
         }
 
         if (identifier.startsWith("kit_is_available_")) {
-            String kit = identifier.split("kit_is_available_")[1].toLowerCase();
-
-            Kit k;
-
-            User u = essentials.getUser(p);
-
-            try {
-                k = new Kit(kit, essentials);
-            } catch (Exception e) {
-                return PlaceholderAPIPlugin.booleanFalse();
-            }
-
+            String kitName = identifier.split("kit_is_available_")[1].toLowerCase();
+            Kit kit;
+            User user = essentials.getUser(givenPlayer.getUniqueId());
             long time;
 
             try {
-                time = k.getNextUse(u);
+                kit = new Kit(kitName, essentials);
+            } catch (Exception e) {
+                return "Invalid kit name";
+            }
+
+            try {
+                time = kit.getNextUse(user);
             } catch (Exception e) {
                 return PlaceholderAPIPlugin.booleanFalse();
             }
@@ -124,52 +122,68 @@ public class EssentialsExpansion extends PlaceholderExpansion {
         }
 
         if (identifier.startsWith("kit_time_until_available_")) {
-            String kit = identifier.split("kit_time_until_available_")[1].toLowerCase();
-
-            Kit k;
-
-            User u = essentials.getUser(p);
-
-            try {
-                k = new Kit(kit, essentials);
-            } catch (Exception e) {
-                return PlaceholderAPIPlugin.booleanFalse();
-            }
-
+            String kitName = identifier.split("kit_time_until_available_")[1].toLowerCase();
+            boolean raw = false;
+            User user = essentials.getUser(givenPlayer.getUniqueId());
+            Kit kit;
             long time;
 
+            if (kitName.startsWith("raw_")) {
+                raw = true;
+                kitName = kitName.substring(4);
+
+                if (kitName.isEmpty()) {
+                    return "Invalid kit name";
+                }
+            }
+
             try {
-                time = k.getNextUse(u);
+                kit = new Kit(kitName, essentials);
+            } catch (Exception e) {
+                return "Invalid kit name";
+            }
+
+            try {
+                time = kit.getNextUse(user);
             } catch (Exception e) {
                 return "-1";
             }
-            int seconds = (int) (time - System.currentTimeMillis()) / 1000;
 
-            if (seconds <= 0 || time == 0) {
-                return "0";
+            if (time <= System.currentTimeMillis()) {
+                return raw ? "0" : DateUtil.formatDateDiff(System.currentTimeMillis());
             }
-            return TimeUtil.getTime(seconds);
+
+            if (raw) {
+                return String.valueOf(Instant.now().until(Instant.ofEpochMilli(time), ChronoUnit.MILLIS));
+            } else {
+                return DateUtil.formatDateDiff(time);
+            }
         }
 
         if (identifier.startsWith("has_kit_")) {
             String kit = identifier.split("has_kit_")[1];
             return player.hasPermission("essentials.kits." + kit) ? PlaceholderAPIPlugin.booleanTrue() : PlaceholderAPIPlugin.booleanFalse();
-        } else if (identifier.startsWith("worth")){
-            ItemStack item = player.getItemInHand();
+        }
+
+        if (identifier.startsWith("worth")) {
+            ItemStack item;
+
             if (identifier.contains(":")){
                 Material material = Material.getMaterial(identifier.replace("worth:", "").toUpperCase());
+
                 if (material == null) return "";
                 item = new ItemStack(material,1);
             } else {
-                if (player.getItemInHand() == null || player.getItemInHand().getType() == Material.AIR) return "";
+                if (player.getItemInHand().getType() == Material.AIR) return "";
                 item = player.getItemInHand();
             }
-            BigDecimal worth = essentials.getWorth().getPrice(null, item);
+
+            BigDecimal worth = essentials.getWorth().getPrice(essentials, item);
             if (worth == null) return "";
             return String.valueOf(worth.doubleValue());
         }
 
-        final User user = essentials.getUser(p);
+        final User user = essentials.getUser(givenPlayer.getUniqueId());
 
         switch (identifier) {
             case "is_pay_confirm":
@@ -196,13 +210,13 @@ public class EssentialsExpansion extends PlaceholderExpansion {
             case "fly":
                 return user.getBase().getAllowFlight() ? PlaceholderAPIPlugin.booleanTrue() : PlaceholderAPIPlugin.booleanFalse();
             case "nickname":
-                return user.getNickname() != null ? essentials.getUser(p).getNickname() : p.getName();
+                return user.getNickname() != null ? essentials.getUser(givenPlayer.getUniqueId()).getNickname() : givenPlayer.getName();
             case "godmode":
                 return user.isGodModeEnabled() ? PlaceholderAPIPlugin.booleanTrue() : PlaceholderAPIPlugin.booleanFalse();
             case "unique":
                 return NumberFormat.getInstance().format(essentials.getUserMap().getUniqueUsers());
             case "homes_set":
-                return user.getHomes().isEmpty() ? String.valueOf(0) : String.valueOf(user.getHomes().size());
+                return user.getHomes().isEmpty() ? "0" : String.valueOf(user.getHomes().size());
             case "homes_max":
                 return String.valueOf(essentials.getSettings().getHomeLimit(user));
             case "jailed":
