@@ -186,6 +186,8 @@ public class EssentialsExpansion extends PlaceholderExpansion {
             case "afk_reason":
                 if (user.getAfkMessage() == null) return "";
                 return ChatColor.translateAlternateColorCodes('&', user.getAfkMessage());
+            case "afk_player_count":
+                return String.valueOf(essentials.getUserMap().getAllUniqueUsers().stream().map(UUID -> essentials.getUser(UUID)).filter(User::isAfk).count());
             case "msg_ignore":
                 return user.isIgnoreMsg() ? PlaceholderAPIPlugin.booleanTrue() : PlaceholderAPIPlugin.booleanFalse();
             case "fly":
