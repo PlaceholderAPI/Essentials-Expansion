@@ -187,6 +187,8 @@ public class EssentialsExpansion extends PlaceholderExpansion {
                 return String.valueOf(essentials.getSettings().getHomeLimit(user));
             case "jailed":
                 return String.valueOf(user.isJailed());
+            case "jailed_time_remaining":
+                return user.getFormattedJailTime();
             case "pm_recipient":
                 return user.getReplyRecipient() != null ? user.getReplyRecipient().getName() : "";
             case "safe_online":
