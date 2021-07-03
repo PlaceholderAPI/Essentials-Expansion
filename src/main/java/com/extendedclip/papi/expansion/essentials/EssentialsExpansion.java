@@ -24,17 +24,17 @@ import com.earth2me.essentials.Essentials;
 import com.earth2me.essentials.Kit;
 import com.earth2me.essentials.User;
 import com.earth2me.essentials.utils.DateUtil;
+import com.earth2me.essentials.utils.DescParseTickFormat;
+import com.google.common.primitives.Ints;
 import me.clip.placeholderapi.PlaceholderAPIPlugin;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-import org.bukkit.Material;
-import org.bukkit.OfflinePlayer;
+import org.bukkit.*;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
 import java.math.BigDecimal;
+import java.text.DateFormat;
 import java.text.NumberFormat;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -77,10 +77,11 @@ public class EssentialsExpansion extends PlaceholderExpansion {
     }
 
     @Override
-    public String onRequest(OfflinePlayer givenPlayer, @NotNull String identifier) {
-        final Player player = (Player) givenPlayer;
+    public String onRequest(OfflinePlayer player, @NotNull String identifier) {
+        final String papiTrue = PlaceholderAPIPlugin.booleanTrue();
+        final String papiFalse = PlaceholderAPIPlugin.booleanFalse();
 
-        if (givenPlayer == null) return "";
+        if (player == null) return "";
 
         if (identifier.startsWith("kit_last_use_")) {
             String kitName = identifier.split("kit_last_use_")[1].toLowerCase();
@@ -103,7 +104,7 @@ public class EssentialsExpansion extends PlaceholderExpansion {
         if (identifier.startsWith("kit_is_available_")) {
             String kitName = identifier.split("kit_is_available_")[1].toLowerCase();
             Kit kit;
-            User user = essentials.getUser(givenPlayer.getUniqueId());
+            User user = essentials.getUser(player.getUniqueId());
             long time;
 
             try {
@@ -115,16 +116,16 @@ public class EssentialsExpansion extends PlaceholderExpansion {
             try {
                 time = kit.getNextUse(user);
             } catch (Exception e) {
-                return PlaceholderAPIPlugin.booleanFalse();
+                return papiFalse;
             }
 
-            return time == 0 ? PlaceholderAPIPlugin.booleanTrue() : PlaceholderAPIPlugin.booleanFalse();
+            return time == 0 ? papiTrue : papiFalse;
         }
 
         if (identifier.startsWith("kit_time_until_available_")) {
             String kitName = identifier.split("kit_time_until_available_")[1].toLowerCase();
             boolean raw = false;
-            User user = essentials.getUser(givenPlayer.getUniqueId());
+            User user = essentials.getUser(player.getUniqueId());
             Kit kit;
             long time;
 
@@ -161,8 +162,54 @@ public class EssentialsExpansion extends PlaceholderExpansion {
         }
 
         if (identifier.startsWith("has_kit_")) {
+            Player oPlayer = player.getPlayer();
+            if (oPlayer == null) return papiFalse;
+
             String kit = identifier.split("has_kit_")[1];
-            return player.hasPermission("essentials.kits." + kit) ? PlaceholderAPIPlugin.booleanTrue() : PlaceholderAPIPlugin.booleanFalse();
+            return oPlayer.hasPermission("essentials.kits." + kit) ? papiTrue : papiFalse;
+        }
+
+        if (identifier.startsWith("home_")) {
+            Integer homeNumber;
+            final User user = essentials.getUser(player.getUniqueId());
+
+            // Removes all the letters from the identifier to get the home slot.
+            // Checks if the number slot is an integer or not.
+            if ((homeNumber = Ints.tryParse(identifier.replaceAll("\\D+", ""))) == null) return null;
+
+            // Since it is easier for users to type from 1-x I subtract one from the original number to work from 0-x.
+            homeNumber -= 1;
+
+            // checks if the home is out of bounds and returns and empty string if it is.
+            if (homeNumber >= user.getHomes().size() || homeNumber < 0) return "";
+
+            // checks if the identifier matches the pattern home_%d
+            if (identifier.matches("(\\w+_)(\\d)")) return user.getHomes().get(homeNumber);
+
+            //checks if the identifier matches the pattern home_%d_(x/y/z)
+            if (identifier.matches("(\\w+_)(\\d)(_\\w)")) {
+
+                try {
+                    final Location home = user.getHome(user.getHomes().get(homeNumber));
+                    final StringBuilder stringBuilder = new StringBuilder();
+
+                    switch (identifier.charAt(identifier.length() - 1)) {
+                        case 'x':
+                            stringBuilder.append(home.getX()).append(".5");
+                            break;
+                        case 'y':
+                            stringBuilder.append((int) home.getY());
+                            break;
+                        case 'z':
+                            stringBuilder.append(home.getZ()).append(".5");
+                            break;
+                    }
+
+                    return stringBuilder.toString();
+                } catch (Exception e) {
+                    return null;
+                }
+            }
         }
 
         if (identifier.startsWith("worth")) {
@@ -174,8 +221,11 @@ public class EssentialsExpansion extends PlaceholderExpansion {
                 if (material == null) return "";
                 item = new ItemStack(material,1);
             } else {
-                if (player.getItemInHand().getType() == Material.AIR) return "";
-                item = player.getItemInHand();
+                Player oPlayer = player.getPlayer();
+                if (oPlayer == null) return "";
+
+                if (oPlayer.getItemInHand().getType() == Material.AIR) return "";
+                item = oPlayer.getItemInHand();
             }
 
             BigDecimal worth = essentials.getWorth().getPrice(essentials, item);
@@ -183,21 +233,21 @@ public class EssentialsExpansion extends PlaceholderExpansion {
             return String.valueOf(worth.doubleValue());
         }
 
-        final User user = essentials.getUser(givenPlayer.getUniqueId());
+        final User user = essentials.getUser(player.getUniqueId());
 
         switch (identifier) {
             case "is_pay_confirm":
-                return user.isPromptingPayConfirm() ? PlaceholderAPIPlugin.booleanTrue() : PlaceholderAPIPlugin.booleanFalse();
+                return user.isPromptingPayConfirm() ? papiTrue : papiFalse;
             case "is_pay_enabled":
-                return user.isAcceptingPay() ? PlaceholderAPIPlugin.booleanTrue() : PlaceholderAPIPlugin.booleanFalse();
+                return user.isAcceptingPay() ? papiTrue : papiFalse;
             case "is_teleport_enabled":
-                return user.isTeleportEnabled() ? PlaceholderAPIPlugin.booleanTrue() : PlaceholderAPIPlugin.booleanFalse();
+                return user.isTeleportEnabled() ? papiTrue : papiFalse;
             case "is_muted":
-                return user.isMuted() ? PlaceholderAPIPlugin.booleanTrue() : PlaceholderAPIPlugin.booleanFalse();
+                return user.isMuted() ? papiTrue : papiFalse;
             case "vanished":
-                return user.isVanished() ? PlaceholderAPIPlugin.booleanTrue() : PlaceholderAPIPlugin.booleanFalse();
+                return user.isVanished() ? papiTrue : papiFalse;
             case "afk":
-                return user.isAfk() ? PlaceholderAPIPlugin.booleanTrue() : PlaceholderAPIPlugin.booleanFalse();
+                return user.isAfk() ? papiTrue : papiFalse;
             case "afk_reason":
                 if (user.getAfkMessage() == null) return "";
                 return ChatColor.translateAlternateColorCodes('&', user.getAfkMessage());
@@ -206,13 +256,15 @@ public class EssentialsExpansion extends PlaceholderExpansion {
                         .map(UUID -> essentials.getUser(UUID)).filter(User::isAfk)
                         .count());
             case "msg_ignore":
-                return user.isIgnoreMsg() ? PlaceholderAPIPlugin.booleanTrue() : PlaceholderAPIPlugin.booleanFalse();
+                return user.isIgnoreMsg() ? papiTrue : papiFalse;
             case "fly":
-                return user.getBase().getAllowFlight() ? PlaceholderAPIPlugin.booleanTrue() : PlaceholderAPIPlugin.booleanFalse();
+                return user.getBase().getAllowFlight() ? papiTrue : papiFalse;
             case "nickname":
-                return user.getNickname() != null ? essentials.getUser(givenPlayer.getUniqueId()).getNickname() : givenPlayer.getName();
+                return user.getNickname() != null ? essentials.getUser(player.getUniqueId()).getNickname() : player.getName();
+            case "nickname_stripped":
+                return ChatColor.stripColor(user.getNickname() != null ? essentials.getUser(player.getUniqueId()).getNickname() : player.getName());
             case "godmode":
-                return user.isGodModeEnabled() ? PlaceholderAPIPlugin.booleanTrue() : PlaceholderAPIPlugin.booleanFalse();
+                return user.isGodModeEnabled() ? papiTrue : papiFalse;
             case "unique":
                 return NumberFormat.getInstance().format(essentials.getUserMap().getUniqueUsers());
             case "homes_set":
@@ -220,7 +272,7 @@ public class EssentialsExpansion extends PlaceholderExpansion {
             case "homes_max":
                 return String.valueOf(essentials.getSettings().getHomeLimit(user));
             case "jailed":
-                return String.valueOf(user.isJailed());
+                return user.isJailed() ? papiTrue : papiFalse;
             case "jailed_time_remaining":
                 return user.getFormattedJailTime();
             case "pm_recipient":
@@ -229,9 +281,14 @@ public class EssentialsExpansion extends PlaceholderExpansion {
                 return String.valueOf(StreamSupport.stream(essentials.getOnlineUsers().spliterator(), false)
                         .filter(user1 -> !user1.isHidden())
                         .count());
+            case "world_date":
+                return DateFormat.getDateInstance(DateFormat.MEDIUM, essentials.getI18n().getCurrentLocale())
+                        .format(DescParseTickFormat.ticksToDate(user.getWorld() == null ? 0 : user.getWorld().getFullTime()));
+            case "world_time":
+                return DescParseTickFormat.format12(user.getWorld() == null ? 0 : user.getWorld().getTime());
+            case "world_time_24":
+                return DescParseTickFormat.format24(user.getWorld() == null ? 0 : user.getWorld().getTime());
         }
         return null;
     }
-
-
 }
