@@ -236,8 +236,6 @@ public class EssentialsExpansion extends PlaceholderExpansion {
         final User user = essentials.getUser(player.getUniqueId());
 
         switch (identifier) {
-            case "WORLDDATE":
-                return PlaceholderAPIPlugin.getDateFormat().format(DescParseTickFormat.ticksToDate(user.getWorld() == null ? 0 : user.getWorld().getFullTime()));
             case "is_pay_confirm":
                 return user.isPromptingPayConfirm() ? papiTrue : papiFalse;
             case "is_pay_enabled":
@@ -286,6 +284,8 @@ public class EssentialsExpansion extends PlaceholderExpansion {
             case "world_date":
                 return DateFormat.getDateInstance(DateFormat.MEDIUM, essentials.getI18n().getCurrentLocale())
                         .format(DescParseTickFormat.ticksToDate(user.getWorld() == null ? 0 : user.getWorld().getFullTime()));
+            case "world_date_format":
+                return PlaceholderAPIPlugin.getDateFormat().format(DescParseTickFormat.ticksToDate(user.getWorld() == null ? 0 : user.getWorld().getFullTime()));
             case "world_time":
                 return DescParseTickFormat.format12(user.getWorld() == null ? 0 : user.getWorld().getTime());
             case "world_time_24":
