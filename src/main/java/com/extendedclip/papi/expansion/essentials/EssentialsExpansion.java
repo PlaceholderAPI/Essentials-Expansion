@@ -224,8 +224,8 @@ public class EssentialsExpansion extends PlaceholderExpansion {
                 Player oPlayer = player.getPlayer();
                 if (oPlayer == null) return "";
 
-                if (oPlayer.getItemInHand().getType() == Material.AIR) return "";
-                item = oPlayer.getItemInHand();
+                if (oPlayer.getInventory().getItemInMainHand().getType() == Material.AIR) return "";
+				item = oPlayer.getInventory().getItemInMainHand();
             }
 
             BigDecimal worth = essentials.getWorth().getPrice(essentials, item);
