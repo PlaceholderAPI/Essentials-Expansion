@@ -263,6 +263,8 @@ public class EssentialsExpansion extends PlaceholderExpansion {
                 return user.getNickname() != null ? essentials.getUser(player.getUniqueId()).getNickname() : player.getName();
             case "nickname_stripped":
                 return ChatColor.stripColor(user.getNickname() != null ? essentials.getUser(player.getUniqueId()).getNickname() : player.getName());
+			case "nickname_hex_stripped":
+				return user.getNickname() != null ? user.getNickname().replaceAll("\\&#[0-9a-f]{6,}", "") : player.getName();
             case "godmode":
                 return user.isGodModeEnabled() ? papiTrue : papiFalse;
             case "unique":
