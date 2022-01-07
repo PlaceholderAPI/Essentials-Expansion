@@ -74,6 +74,7 @@ public class EssentialsExpansion extends PlaceholderExpansion {
 
         essentials = (Essentials) Bukkit.getPluginManager().getPlugin("Essentials");
         if (essentials != null) {
+            essentials.getBalanceTop().calculateBalanceTopMapAsync();
             return super.register();
         }
         return false;
