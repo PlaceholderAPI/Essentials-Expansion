@@ -288,6 +288,8 @@ public class EssentialsExpansion extends PlaceholderExpansion {
                 return DescParseTickFormat.format12(user.getWorld() == null ? 0 : user.getWorld().getTime());
             case "world_time_24":
                 return DescParseTickFormat.format24(user.getWorld() == null ? 0 : user.getWorld().getTime());
+            case "WORLDDATE":
+                return PlaceholderAPIPlugin.getDateFormat().format(DescParseTickFormat.ticksToDate(user.getWorld() == null ? 0 : user.getWorld().getFullTime()));
         }
         return null;
     }
