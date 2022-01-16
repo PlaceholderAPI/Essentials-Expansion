@@ -195,13 +195,13 @@ public class EssentialsExpansion extends PlaceholderExpansion {
 
                     switch (identifier.charAt(identifier.length() - 1)) {
                         case 'x':
-                            stringBuilder.append(home.getX()).append(".5");
+                            stringBuilder.append(home.getX());
                             break;
                         case 'y':
                             stringBuilder.append((int) home.getY());
                             break;
                         case 'z':
-                            stringBuilder.append(home.getZ()).append(".5");
+                            stringBuilder.append(home.getZ());
                             break;
                     }
 
