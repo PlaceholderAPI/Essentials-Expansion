@@ -56,12 +56,13 @@ public class EssentialsExpansion extends PlaceholderExpansion {
     private final DecimalFormat format = new DecimalFormat("#,###");
 
     private Essentials essentials;
+    private BalanceTop baltop;
 
     private final String VERSION = getClass().getPackage().getImplementationVersion();
 
     @Override
     public boolean canRegister() {
-        return Bukkit.getPluginManager().getPlugin("Essentials") != null;
+        return Bukkit.getPluginManager().getPlugin("Essentials") != null && Bukkit.getPluginManager().getPlugin("Essentials").isEnabled();
     }
 
     @Override
@@ -73,8 +74,9 @@ public class EssentialsExpansion extends PlaceholderExpansion {
         q = getString("formatting.quadrillions", "q");
 
         essentials = (Essentials) Bukkit.getPluginManager().getPlugin("Essentials");
-        if (essentials != null) {
-            essentials.getBalanceTop().calculateBalanceTopMapAsync();
+        if (essentials != null && essentials.isEnabled()) {
+            baltop = essentials.getBalanceTop();
+            baltop.calculateBalanceTopMapAsync();
             return super.register();
         }
         return false;
@@ -189,7 +191,6 @@ public class EssentialsExpansion extends PlaceholderExpansion {
         }
 
         if (identifier.startsWith("baltop_")) {
-            BalanceTop baltop = essentials.getBalanceTop();
             Map<UUID, BalanceTop.Entry> baltopCache = baltop.getBalanceTopCache();
             identifier = identifier.substring(7);
 
