@@ -269,6 +269,21 @@ public class EssentialsExpansion extends PlaceholderExpansion {
                 return entries[id].getDisplayName();
             }
 
+            if (identifier.equals("rank")) {
+                if (!baltopCache.containsKey(player.getUniqueId())) {
+                    return "";
+                }
+
+                int index = 1;
+                for (Map.Entry<UUID, BalanceTop.Entry> entry : baltopCache.entrySet()) {
+                    if (entry.getKey() == player.getUniqueId()) {
+                        return String.valueOf(index);
+                    }
+
+                    index++;
+                }
+            }
+
             return null;
         }
 
