@@ -28,6 +28,7 @@ import com.earth2me.essentials.utils.DescParseTickFormat;
 import com.google.common.primitives.Ints;
 import me.clip.placeholderapi.PlaceholderAPIPlugin;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
+import net.essentialsx.api.v2.services.BalanceTop;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -35,27 +36,47 @@ import org.jetbrains.annotations.NotNull;
 
 import java.math.BigDecimal;
 import java.text.DateFormat;
+import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
+import java.util.Locale;
+import java.util.Map;
+import java.util.UUID;
 import java.util.stream.StreamSupport;
 
 public class EssentialsExpansion extends PlaceholderExpansion {
 
+    private String k;
+    private String m;
+    private String b;
+    private String t;
+    private String q;
+    private final DecimalFormat format = new DecimalFormat("#,###");
+
     private Essentials essentials;
+    private BalanceTop baltop;
 
     private final String VERSION = getClass().getPackage().getImplementationVersion();
 
     @Override
     public boolean canRegister() {
-        return Bukkit.getPluginManager().getPlugin("Essentials") != null;
+        return Bukkit.getPluginManager().getPlugin("Essentials") != null && Bukkit.getPluginManager().getPlugin("Essentials").isEnabled();
     }
 
     @Override
     public boolean register() {
+        k = getString("formatting.thousands", "k");
+        m = getString("formatting.millions", "m");
+        b = getString("formatting.billions", "b");
+        t = getString("formatting.trillions", "t");
+        q = getString("formatting.quadrillions", "q");
+
         essentials = (Essentials) Bukkit.getPluginManager().getPlugin("Essentials");
-        if (essentials != null) {
+        if (essentials != null && essentials.isEnabled()) {
+            baltop = essentials.getBalanceTop();
+            baltop.calculateBalanceTopMapAsync();
             return super.register();
         }
         return false;
@@ -167,6 +188,103 @@ public class EssentialsExpansion extends PlaceholderExpansion {
 
             String kit = identifier.split("has_kit_")[1];
             return oPlayer.hasPermission("essentials.kits." + kit) ? papiTrue : papiFalse;
+        }
+
+        if (identifier.startsWith("baltop_")) {
+            Map<UUID, BalanceTop.Entry> baltopCache = baltop.getBalanceTopCache();
+            identifier = identifier.substring(7);
+
+            if (identifier.startsWith("balance_")) {
+                identifier = identifier.substring(8);
+
+                if (identifier.startsWith("fixed_")) {
+                    identifier = identifier.substring(6);
+
+                    Integer id = Ints.tryParse(identifier);
+                    if (id == null) {
+                        return "Invalid ID";
+                    }
+
+                    BalanceTop.Entry[] entries = baltopCache.values().toArray(new BalanceTop.Entry[0]);
+                    if (id >= entries.length) {
+                        return "0";
+                    }
+                    return String.valueOf(entries[id].getBalance().longValue());
+                }
+
+                if (identifier.startsWith("formatted_")) {
+                    identifier = identifier.substring(10);
+
+                    Integer id = Ints.tryParse(identifier);
+                    if (id == null) {
+                        return "Invalid ID";
+                    }
+
+                    BalanceTop.Entry[] entries = baltopCache.values().toArray(new BalanceTop.Entry[0]);
+                    if (id >= entries.length) {
+                        return "0";
+                    }
+                    return fixMoney(entries[id].getBalance().doubleValue());
+                }
+
+                if (identifier.startsWith("commas_")) {
+                    identifier = identifier.substring(7);
+
+                    Integer id = Ints.tryParse(identifier);
+                    if (id == null) {
+                        return "Invalid ID";
+                    }
+
+                    BalanceTop.Entry[] entries = baltopCache.values().toArray(new BalanceTop.Entry[0]);
+                    if (id >= entries.length) {
+                        return "0";
+                    }
+                    return format.format(entries[id].getBalance().doubleValue());
+                }
+
+                Integer id = Ints.tryParse(identifier);
+                if (id == null) {
+                    return "Invalid ID";
+                }
+
+                BalanceTop.Entry[] entries = baltopCache.values().toArray(new BalanceTop.Entry[0]);
+                if (id >= entries.length) {
+                    return "0";
+                }
+                return String.valueOf(entries[id].getBalance().doubleValue());
+            }
+
+            if (identifier.startsWith("player_")) {
+                identifier = identifier.substring(7);
+
+                Integer id = Ints.tryParse(identifier);
+                if (id == null) {
+                    return "Invalid ID";
+                }
+
+                BalanceTop.Entry[] entries = baltopCache.values().toArray(new BalanceTop.Entry[0]);
+                if (id >= entries.length) {
+                    return "0";
+                }
+                return entries[id].getDisplayName();
+            }
+
+            if (identifier.equals("rank")) {
+                if (!baltopCache.containsKey(player.getUniqueId())) {
+                    return "";
+                }
+
+                int index = 1;
+                for (Map.Entry<UUID, BalanceTop.Entry> entry : baltopCache.entrySet()) {
+                    if (entry.getKey() == player.getUniqueId()) {
+                        return String.valueOf(index);
+                    }
+
+                    index++;
+                }
+            }
+
+            return null;
         }
 
         if (identifier.startsWith("home_")) {
@@ -290,5 +408,36 @@ public class EssentialsExpansion extends PlaceholderExpansion {
                 return DescParseTickFormat.format24(user.getWorld() == null ? 0 : user.getWorld().getTime());
         }
         return null;
+    }
+
+    private String format(double d) {
+        NumberFormat format = NumberFormat.getInstance(Locale.ENGLISH);
+        format.setMaximumFractionDigits(2);
+        format.setMinimumFractionDigits(0);
+        return format.format(d);
+    }
+
+    private String fixMoney(double d) {
+
+        if (d < 1000L) {
+            return format(d);
+        }
+        if (d < 1000000L) {
+            return format(d / 1000L) + k;
+        }
+        if (d < 1000000000L) {
+            return format(d / 1000000L) + m;
+        }
+        if (d < 1000000000000L) {
+            return format(d / 1000000000L) + b;
+        }
+        if (d < 1000000000000000L) {
+            return format(d / 1000000000000L) + t;
+        }
+        if (d < 1000000000000000000L) {
+            return format(d / 1000000000000000L) + q;
+        }
+
+        return String.valueOf(d);
     }
 }
