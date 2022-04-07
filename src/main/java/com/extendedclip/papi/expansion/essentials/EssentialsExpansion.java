@@ -25,6 +25,7 @@ import com.earth2me.essentials.Kit;
 import com.earth2me.essentials.User;
 import com.earth2me.essentials.utils.DateUtil;
 import com.earth2me.essentials.utils.DescParseTickFormat;
+import com.google.common.collect.Streams;
 import com.google.common.primitives.Ints;
 import me.clip.placeholderapi.PlaceholderAPIPlugin;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
@@ -40,10 +41,8 @@ import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.Date;
-import java.util.Locale;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
+import java.util.stream.IntStream;
 import java.util.stream.StreamSupport;
 
 public class EssentialsExpansion extends PlaceholderExpansion {
@@ -101,6 +100,100 @@ public class EssentialsExpansion extends PlaceholderExpansion {
     public String onRequest(OfflinePlayer player, @NotNull String identifier) {
         final String papiTrue = PlaceholderAPIPlugin.booleanTrue();
         final String papiFalse = PlaceholderAPIPlugin.booleanFalse();
+
+        // Put this before the null check as most of it is not required
+        if (identifier.startsWith("baltop_")) {
+            Map<UUID, BalanceTop.Entry> baltopCache = baltop.getBalanceTopCache();
+            identifier = identifier.substring(7);
+
+            if (identifier.startsWith("balance_")) {
+                identifier = identifier.substring(8);
+
+                if (identifier.startsWith("fixed_")) {
+                    identifier = identifier.substring(6);
+
+                    Integer id = Ints.tryParse(identifier);
+                    if (id == null) {
+                        return "Invalid ID";
+                    }
+
+                    BalanceTop.Entry[] entries = baltopCache.values().toArray(new BalanceTop.Entry[0]);
+                    if (id >= entries.length) {
+                        return "0";
+                    }
+                    return String.valueOf(entries[id].getBalance().longValue());
+                }
+
+                if (identifier.startsWith("formatted_")) {
+                    identifier = identifier.substring(10);
+
+                    Integer id = Ints.tryParse(identifier);
+                    if (id == null) {
+                        return "Invalid ID";
+                    }
+
+                    BalanceTop.Entry[] entries = baltopCache.values().toArray(new BalanceTop.Entry[0]);
+                    if (id >= entries.length) {
+                        return "0";
+                    }
+                    return fixMoney(entries[id].getBalance().doubleValue());
+                }
+
+                if (identifier.startsWith("commas_")) {
+                    identifier = identifier.substring(7);
+
+                    Integer id = Ints.tryParse(identifier);
+                    if (id == null) {
+                        return "Invalid ID";
+                    }
+
+                    BalanceTop.Entry[] entries = baltopCache.values().toArray(new BalanceTop.Entry[0]);
+                    if (id >= entries.length) {
+                        return "0";
+                    }
+                    return format.format(entries[id].getBalance().doubleValue());
+                }
+
+                Integer id = Ints.tryParse(identifier);
+                if (id == null) {
+                    return "Invalid ID";
+                }
+
+                BalanceTop.Entry[] entries = baltopCache.values().toArray(new BalanceTop.Entry[0]);
+                if (id >= entries.length) {
+                    return "0";
+                }
+                return String.valueOf(entries[id].getBalance().doubleValue());
+            }
+
+            if (identifier.startsWith("player_")) {
+                identifier = identifier.substring(7);
+
+                Integer id = Ints.tryParse(identifier);
+                if (id == null) {
+                    return "Invalid ID";
+                }
+
+                BalanceTop.Entry[] entries = baltopCache.values().toArray(new BalanceTop.Entry[0]);
+                if (id >= entries.length) {
+                    return "0";
+                }
+                return entries[id].getDisplayName();
+            }
+
+            if (identifier.equals("rank")) {
+                // Another null check because it is above the normal one
+                if (player == null) return "";
+
+                if (!baltopCache.containsKey(player.getUniqueId())) {
+                    return "";
+                }
+
+                return String.valueOf(new ArrayList<>(baltopCache.keySet()).indexOf(player.getUniqueId()) + 1);
+            }
+
+            return null;
+        }
 
         if (player == null) return "";
 
@@ -188,103 +281,6 @@ public class EssentialsExpansion extends PlaceholderExpansion {
 
             String kit = identifier.split("has_kit_")[1];
             return oPlayer.hasPermission("essentials.kits." + kit) ? papiTrue : papiFalse;
-        }
-
-        if (identifier.startsWith("baltop_")) {
-            Map<UUID, BalanceTop.Entry> baltopCache = baltop.getBalanceTopCache();
-            identifier = identifier.substring(7);
-
-            if (identifier.startsWith("balance_")) {
-                identifier = identifier.substring(8);
-
-                if (identifier.startsWith("fixed_")) {
-                    identifier = identifier.substring(6);
-
-                    Integer id = Ints.tryParse(identifier);
-                    if (id == null) {
-                        return "Invalid ID";
-                    }
-
-                    BalanceTop.Entry[] entries = baltopCache.values().toArray(new BalanceTop.Entry[0]);
-                    if (id >= entries.length) {
-                        return "0";
-                    }
-                    return String.valueOf(entries[id].getBalance().longValue());
-                }
-
-                if (identifier.startsWith("formatted_")) {
-                    identifier = identifier.substring(10);
-
-                    Integer id = Ints.tryParse(identifier);
-                    if (id == null) {
-                        return "Invalid ID";
-                    }
-
-                    BalanceTop.Entry[] entries = baltopCache.values().toArray(new BalanceTop.Entry[0]);
-                    if (id >= entries.length) {
-                        return "0";
-                    }
-                    return fixMoney(entries[id].getBalance().doubleValue());
-                }
-
-                if (identifier.startsWith("commas_")) {
-                    identifier = identifier.substring(7);
-
-                    Integer id = Ints.tryParse(identifier);
-                    if (id == null) {
-                        return "Invalid ID";
-                    }
-
-                    BalanceTop.Entry[] entries = baltopCache.values().toArray(new BalanceTop.Entry[0]);
-                    if (id >= entries.length) {
-                        return "0";
-                    }
-                    return format.format(entries[id].getBalance().doubleValue());
-                }
-
-                Integer id = Ints.tryParse(identifier);
-                if (id == null) {
-                    return "Invalid ID";
-                }
-
-                BalanceTop.Entry[] entries = baltopCache.values().toArray(new BalanceTop.Entry[0]);
-                if (id >= entries.length) {
-                    return "0";
-                }
-                return String.valueOf(entries[id].getBalance().doubleValue());
-            }
-
-            if (identifier.startsWith("player_")) {
-                identifier = identifier.substring(7);
-
-                Integer id = Ints.tryParse(identifier);
-                if (id == null) {
-                    return "Invalid ID";
-                }
-
-                BalanceTop.Entry[] entries = baltopCache.values().toArray(new BalanceTop.Entry[0]);
-                if (id >= entries.length) {
-                    return "0";
-                }
-                return entries[id].getDisplayName();
-            }
-
-            if (identifier.equals("rank")) {
-                if (!baltopCache.containsKey(player.getUniqueId())) {
-                    return "";
-                }
-
-                int index = 1;
-                for (Map.Entry<UUID, BalanceTop.Entry> entry : baltopCache.entrySet()) {
-                    if (entry.getKey() == player.getUniqueId()) {
-                        return String.valueOf(index);
-                    }
-
-                    index++;
-                }
-            }
-
-            return null;
         }
 
         if (identifier.startsWith("home_")) {
