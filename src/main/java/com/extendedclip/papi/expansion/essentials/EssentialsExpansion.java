@@ -99,6 +99,91 @@ public class EssentialsExpansion extends PlaceholderExpansion {
         final String papiTrue = PlaceholderAPIPlugin.booleanTrue();
         final String papiFalse = PlaceholderAPIPlugin.booleanFalse();
 
+        if (identifier.startsWith("baltop_")) {
+            BalanceTop baltop = essentials.getBalanceTop();
+            Map<UUID, BalanceTop.Entry> baltopCache = baltop.getBalanceTopCache();
+            identifier = identifier.substring(7);
+
+            if (identifier.startsWith("balance_")) {
+                identifier = identifier.substring(8);
+
+                if (identifier.startsWith("fixed_")) {
+                    identifier = identifier.substring(6);
+
+                    Integer id = Ints.tryParse(identifier);
+                    if (id == null) {
+                        return "Invalid ID";
+                    }
+
+                    BalanceTop.Entry[] entries = baltopCache.values().toArray(new BalanceTop.Entry[0]);
+                    if (id >= entries.length) {
+                        return "0";
+                    }
+                    return String.valueOf(entries[id].getBalance().longValue());
+                }
+
+                if (identifier.startsWith("formatted_")) {
+                    identifier = identifier.substring(10);
+
+                    Integer id = Ints.tryParse(identifier);
+                    if (id == null) {
+                        return "Invalid ID";
+                    }
+
+                    BalanceTop.Entry[] entries = baltopCache.values().toArray(new BalanceTop.Entry[0]);
+                    if (id >= entries.length) {
+                        return "0";
+                    }
+                    return fixMoney(entries[id].getBalance().doubleValue());
+                }
+
+                if (identifier.startsWith("commas_")) {
+                    identifier = identifier.substring(7);
+
+                    Integer id = Ints.tryParse(identifier);
+                    if (id == null) {
+                        return "Invalid ID";
+                    }
+
+                    BalanceTop.Entry[] entries = baltopCache.values().toArray(new BalanceTop.Entry[0]);
+                    if (id >= entries.length) {
+                        return "0";
+                    }
+                    return format.format(entries[id].getBalance().doubleValue());
+                }
+
+                Integer id = Ints.tryParse(identifier);
+                if (id == null) {
+                    return "Invalid ID";
+                }
+
+                BalanceTop.Entry[] entries = baltopCache.values().toArray(new BalanceTop.Entry[0]);
+                if (id >= entries.length) {
+                    return "0";
+                }
+                return String.valueOf(entries[id].getBalance().doubleValue());
+            }
+
+            if (identifier.startsWith("player_")) {
+                identifier = identifier.substring(7);
+
+                Integer id = Ints.tryParse(identifier);
+                if (id == null) {
+                    return "Invalid ID";
+                }
+
+                BalanceTop.Entry[] entries = baltopCache.values().toArray(new BalanceTop.Entry[0]);
+                if (id >= entries.length) {
+                    return "0";
+                }
+                return entries[id].getDisplayName();
+            }
+
+            return null;
+        }
+
+
+
         if (player == null) return "";
 
         if (identifier.startsWith("kit_last_use_")) {
@@ -185,89 +270,6 @@ public class EssentialsExpansion extends PlaceholderExpansion {
 
             String kit = identifier.split("has_kit_")[1];
             return oPlayer.hasPermission("essentials.kits." + kit) ? papiTrue : papiFalse;
-        }
-
-        if (identifier.startsWith("baltop_")) {
-            BalanceTop baltop = essentials.getBalanceTop();
-            Map<UUID, BalanceTop.Entry> baltopCache = baltop.getBalanceTopCache();
-            identifier = identifier.substring(7);
-
-            if (identifier.startsWith("balance_")) {
-                identifier = identifier.substring(8);
-
-                if (identifier.startsWith("fixed_")) {
-                    identifier = identifier.substring(6);
-
-                    Integer id = Ints.tryParse(identifier);
-                    if (id == null) {
-                        return "Invalid ID";
-                    }
-
-                    BalanceTop.Entry[] entries = baltopCache.values().toArray(new BalanceTop.Entry[0]);
-                    if (id >= entries.length) {
-                        return "0";
-                    }
-                    return String.valueOf(entries[id].getBalance().longValue());
-                }
-
-                if (identifier.startsWith("formatted_")) {
-                    identifier = identifier.substring(10);
-
-                    Integer id = Ints.tryParse(identifier);
-                    if (id == null) {
-                        return "Invalid ID";
-                    }
-
-                    BalanceTop.Entry[] entries = baltopCache.values().toArray(new BalanceTop.Entry[0]);
-                    if (id >= entries.length) {
-                        return "0";
-                    }
-                    return fixMoney(entries[id].getBalance().doubleValue());
-                }
-
-                if (identifier.startsWith("commas_")) {
-                    identifier = identifier.substring(7);
-
-                    Integer id = Ints.tryParse(identifier);
-                    if (id == null) {
-                        return "Invalid ID";
-                    }
-
-                    BalanceTop.Entry[] entries = baltopCache.values().toArray(new BalanceTop.Entry[0]);
-                    if (id >= entries.length) {
-                        return "0";
-                    }
-                    return format.format(entries[id].getBalance().doubleValue());
-                }
-
-                Integer id = Ints.tryParse(identifier);
-                if (id == null) {
-                    return "Invalid ID";
-                }
-
-                BalanceTop.Entry[] entries = baltopCache.values().toArray(new BalanceTop.Entry[0]);
-                if (id >= entries.length) {
-                    return "0";
-                }
-                return String.valueOf(entries[id].getBalance().doubleValue());
-            }
-
-            if (identifier.startsWith("player_")) {
-                identifier = identifier.substring(7);
-
-                Integer id = Ints.tryParse(identifier);
-                if (id == null) {
-                    return "Invalid ID";
-                }
-
-                BalanceTop.Entry[] entries = baltopCache.values().toArray(new BalanceTop.Entry[0]);
-                if (id >= entries.length) {
-                    return "0";
-                }
-                return entries[id].getDisplayName();
-            }
-
-            return null;
         }
 
         if (identifier.startsWith("home_")) {
