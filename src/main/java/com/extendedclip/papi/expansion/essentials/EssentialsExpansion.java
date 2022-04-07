@@ -25,6 +25,7 @@ import com.earth2me.essentials.Kit;
 import com.earth2me.essentials.User;
 import com.earth2me.essentials.utils.DateUtil;
 import com.earth2me.essentials.utils.DescParseTickFormat;
+import com.google.common.collect.Streams;
 import com.google.common.primitives.Ints;
 import me.clip.placeholderapi.PlaceholderAPIPlugin;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
@@ -40,10 +41,8 @@ import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.Date;
-import java.util.Locale;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
+import java.util.stream.IntStream;
 import java.util.stream.StreamSupport;
 
 public class EssentialsExpansion extends PlaceholderExpansion {
@@ -190,14 +189,7 @@ public class EssentialsExpansion extends PlaceholderExpansion {
                     return "";
                 }
 
-                int index = 1;
-                for (Map.Entry<UUID, BalanceTop.Entry> entry : baltopCache.entrySet()) {
-                    if (entry.getKey() == player.getUniqueId()) {
-                        return String.valueOf(index);
-                    }
-
-                    index++;
-                }
+                return String.valueOf(new ArrayList<>(baltopCache.keySet()).indexOf(player.getUniqueId()) + 1);
             }
 
             return null;
