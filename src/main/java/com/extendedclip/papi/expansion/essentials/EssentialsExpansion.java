@@ -186,7 +186,16 @@ public class EssentialsExpansion extends PlaceholderExpansion {
                     return "0";
                 }
 
-                return stripped ? Bukkit.getPlayer(entries[id].getUuid()).getName() : entries[id].getDisplayName();
+                if (stripped) {
+                    Player player1 = Bukkit.getPlayer(entries[id].getUuid());
+                    if (player1 != null) {
+                        return player1.getName();
+                    } else {
+                        return null;
+                    }
+                } else {
+                    return entries[id].getDisplayName();
+                }
             }
 
             if (identifier.equals("rank")) {
