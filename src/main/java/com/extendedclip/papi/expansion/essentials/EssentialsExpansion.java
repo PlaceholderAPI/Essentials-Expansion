@@ -206,7 +206,7 @@ public class EssentialsExpansion extends PlaceholderExpansion {
 
             long diff = TimeUnit.MILLISECONDS.toSeconds(d1 - d2);
 
-            if(diff < cooldown) return "" + (int) (cooldown - diff);
+            if(diff < cooldown) return String.valueOf((int) (cooldown - diff));
 
             return "0";
         }
