@@ -198,7 +198,7 @@ public class EssentialsExpansion extends PlaceholderExpansion {
 
         if (player == null) return "";
 
-        if (identifier.startsWith("tp_cooldown")) {
+        if (identifier.equals("tp_cooldown")) {
             final double cooldown = essentials.getSettings().getTeleportCooldown();
 
             final long d1 = System.currentTimeMillis();
