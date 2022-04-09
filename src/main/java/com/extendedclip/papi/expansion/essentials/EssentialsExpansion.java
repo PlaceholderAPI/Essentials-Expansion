@@ -187,9 +187,9 @@ public class EssentialsExpansion extends PlaceholderExpansion {
                 }
 
                 if (stripped) {
-                    Player player1 = Bukkit.getPlayer(entries[id].getUuid());
-                    if (player1 != null) {
-                        return player1.getName();
+                    User user = essentials.getUser(entries[id].getUuid());
+                    if (user != null) {
+                        return user.getName();
                     } else {
                         return null;
                     }
