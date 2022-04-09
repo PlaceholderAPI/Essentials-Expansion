@@ -298,10 +298,10 @@ public class EssentialsExpansion extends PlaceholderExpansion {
             if (homeNumber >= user.getHomes().size() || homeNumber < 0) return "";
 
             // checks if the identifier matches the pattern home_%d
-            if (identifier.matches("(\\w+_)(\\d)")) return user.getHomes().get(homeNumber);
+            if (identifier.matches("(\\w+_)(\\d+)")) return user.getHomes().get(homeNumber);
 
             //checks if the identifier matches the pattern home_%d_(x/y/z)
-            if (identifier.matches("(\\w+_)(\\d)(_\\w)")) {
+            if (identifier.matches("(\\w+_)(\\d+)(_\\w)")) {
 
                 try {
                     final Location home = user.getHome(user.getHomes().get(homeNumber));
