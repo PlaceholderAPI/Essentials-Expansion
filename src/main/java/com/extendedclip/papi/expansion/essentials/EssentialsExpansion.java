@@ -25,7 +25,7 @@ import com.earth2me.essentials.Kit;
 import com.earth2me.essentials.User;
 import com.earth2me.essentials.utils.DateUtil;
 import com.earth2me.essentials.utils.DescParseTickFormat;
-import com.google.common.collect.Streams;
+
 import com.google.common.primitives.Ints;
 import me.clip.placeholderapi.PlaceholderAPIPlugin;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
@@ -42,7 +42,8 @@ import java.text.NumberFormat;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
-import java.util.stream.IntStream;
+
+import java.util.concurrent.TimeUnit;
 import java.util.stream.StreamSupport;
 
 public class EssentialsExpansion extends PlaceholderExpansion {
@@ -213,6 +214,19 @@ public class EssentialsExpansion extends PlaceholderExpansion {
         }
 
         if (player == null) return "";
+
+        if (identifier.equals("tp_cooldown")) {
+            final double cooldown = essentials.getSettings().getTeleportCooldown();
+
+            final long d1 = System.currentTimeMillis();
+            final long d2 = essentials.getUser(player.getUniqueId()).getLastTeleportTimestamp();
+
+            long diff = TimeUnit.MILLISECONDS.toSeconds(d1 - d2);
+
+            if(diff < cooldown) return String.valueOf((int) (cooldown - diff));
+
+            return "0";
+        }
 
         if (identifier.startsWith("kit_last_use_")) {
             String kitName = identifier.split("kit_last_use_")[1].toLowerCase();
