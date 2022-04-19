@@ -369,8 +369,8 @@ public class EssentialsExpansion extends PlaceholderExpansion {
                 Player oPlayer = player.getPlayer();
                 if (oPlayer == null) return "";
 
-                if (oPlayer.getItemInHand().getType() == Material.AIR) return "";
-                item = oPlayer.getItemInHand();
+                if (oPlayer.getInventory().getItemInMainHand().getType() == Material.AIR) return "";
+                item = oPlayer.getInventory().getItemInMainHand();
             }
 
             BigDecimal worth = essentials.getWorth().getPrice(essentials, item);
@@ -408,6 +408,8 @@ public class EssentialsExpansion extends PlaceholderExpansion {
                 return user.getNickname() != null ? essentials.getUser(player.getUniqueId()).getNickname() : player.getName();
             case "nickname_stripped":
                 return ChatColor.stripColor(user.getNickname() != null ? essentials.getUser(player.getUniqueId()).getNickname() : player.getName());
+            case "nickname_hex_stripped":
+                return user.getNickname() != null ? user.getNickname().replaceAll("§x§[0-9a-f]§[0-9a-f]§[0-9a-f]§[0-9a-f]§[0-9a-f]§[0-9a-f]", "") : player.getName();
             case "godmode":
                 return user.isGodModeEnabled() ? papiTrue : papiFalse;
             case "unique":
