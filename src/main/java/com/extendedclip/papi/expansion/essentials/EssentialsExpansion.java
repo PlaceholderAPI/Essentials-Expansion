@@ -169,6 +169,13 @@ public class EssentialsExpansion extends PlaceholderExpansion {
             if (identifier.startsWith("player_")) {
                 identifier = identifier.substring(7);
 
+                boolean stripped = false;
+
+                if (identifier.startsWith("stripped_")) {
+                    identifier = identifier.substring(9);
+                    stripped = true;
+                }
+
                 Integer id = Ints.tryParse(identifier);
                 if (id == null) {
                     return "Invalid ID";
@@ -178,7 +185,17 @@ public class EssentialsExpansion extends PlaceholderExpansion {
                 if (id >= entries.length) {
                     return "0";
                 }
-                return entries[id].getDisplayName();
+
+                if (stripped) {
+                    User user = essentials.getUser(entries[id].getUuid());
+                    if (user != null) {
+                        return user.getName();
+                    } else {
+                        return null;
+                    }
+                } else {
+                    return entries[id].getDisplayName();
+                }
             }
 
             if (identifier.equals("rank")) {
