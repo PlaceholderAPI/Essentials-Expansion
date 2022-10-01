@@ -381,6 +381,8 @@ public class EssentialsExpansion extends PlaceholderExpansion {
         final User user = essentials.getUser(player.getUniqueId());
 
         switch (identifier) {
+            case "is_clearinventory_confirm":
+                return user.isPromptingClearConfirm() ? papiTrue : papiFalse;
             case "is_pay_confirm":
                 return user.isPromptingPayConfirm() ? papiTrue : papiFalse;
             case "is_pay_enabled":
