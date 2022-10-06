@@ -419,7 +419,7 @@ public class EssentialsExpansion extends PlaceholderExpansion {
             case "jailed":
                 return user.isJailed() ? papiTrue : papiFalse;
             case "jailed_time_remaining":
-                return user.getFormattedJailTime();
+                return user.isJailed() ? user.getFormattedJailTime() : "";
             case "pm_recipient":
                 return user.getReplyRecipient() != null ? user.getReplyRecipient().getName() : "";
             case "safe_online":
