@@ -394,7 +394,7 @@ public class EssentialsExpansion extends PlaceholderExpansion {
             case "playtime":
                 long playTime = user.getBase().getStatistic(Statistic.PLAY_ONE_MINUTE);
                 final long playtimeMs = System.currentTimeMillis() - (playTime * 50L);
-                return formatDateDiff(playtimeMs);
+                return DateUtil.formatDateDiff(playtimeMs);
             case "vanished":
                 return user.isVanished() ? papiTrue : papiFalse;
             case "afk":
@@ -472,12 +472,5 @@ public class EssentialsExpansion extends PlaceholderExpansion {
         }
 
         return String.valueOf(d);
-    }
-
-    public static String formatDateDiff(final long date) {
-        final Calendar c = new GregorianCalendar();
-        c.setTimeInMillis(date);
-        final Calendar now = new GregorianCalendar();
-        return DateUtil.formatDateDiff(now, c);
     }
 }
