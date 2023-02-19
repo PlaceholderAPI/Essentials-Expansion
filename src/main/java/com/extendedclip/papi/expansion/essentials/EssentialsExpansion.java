@@ -415,6 +415,8 @@ public class EssentialsExpansion extends PlaceholderExpansion {
                 return user.getNickname() != null ? essentials.getUser(player.getUniqueId()).getNickname() : player.getName();
             case "nickname_stripped":
                 return ChatColor.stripColor(user.getNickname() != null ? essentials.getUser(player.getUniqueId()).getNickname() : player.getName());
+            case "muted_time_remaining":
+                return user.isMuted() ? DateUtil.formatDateDiff(user.getMuteTimeout()) : "";
             case "godmode":
                 return user.isGodModeEnabled() ? papiTrue : papiFalse;
             case "unique":
