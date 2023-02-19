@@ -55,6 +55,8 @@ public class EssentialsExpansion extends PlaceholderExpansion {
     private String q;
     private final DecimalFormat format = new DecimalFormat("#,###");
 
+    private final DecimalFormat coordsFormat = new DecimalFormat("#.###");
+
     private Essentials essentials;
     private BalanceTop baltop;
 
@@ -331,7 +333,7 @@ public class EssentialsExpansion extends PlaceholderExpansion {
             // checks if the identifier matches the pattern home_%d
             if (identifier.matches("(\\w+_)(\\d+)")) return user.getHomes().get(homeNumber);
 
-            //checks if the identifier matches the pattern home_%d_(x/y/z)
+            //checks if the identifier matches the pattern home_%d_(w/x/y/z)
             if (identifier.matches("(\\w+_)(\\d+)(_\\w)")) {
 
                 try {
@@ -339,14 +341,17 @@ public class EssentialsExpansion extends PlaceholderExpansion {
                     final StringBuilder stringBuilder = new StringBuilder();
 
                     switch (identifier.charAt(identifier.length() - 1)) {
+                        case 'w':
+                            stringBuilder.append(home.getWorld().getName());
+                            break;
                         case 'x':
-                            stringBuilder.append(home.getX());
+                            stringBuilder.append(coordsFormat.format(home.getX()));
                             break;
                         case 'y':
                             stringBuilder.append((int) home.getY());
                             break;
                         case 'z':
-                            stringBuilder.append(home.getZ());
+                            stringBuilder.append(coordsFormat.format(home.getZ()));
                             break;
                     }
 
