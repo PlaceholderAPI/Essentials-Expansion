@@ -417,6 +417,8 @@ public class EssentialsExpansion extends PlaceholderExpansion {
                 return ChatColor.stripColor(user.getNickname() != null ? essentials.getUser(player.getUniqueId()).getNickname() : player.getName());
             case "muted_time_remaining":
                 return user.isMuted() ? DateUtil.formatDateDiff(user.getMuteTimeout()) : "";
+            case "geolocation":
+                return user.getGeoLocation() != null ? user.getGeoLocation() : "";
             case "godmode":
                 return user.isGodModeEnabled() ? papiTrue : papiFalse;
             case "unique":
