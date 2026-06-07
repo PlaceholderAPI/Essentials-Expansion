@@ -77,6 +77,8 @@ public class EssentialsExpansion extends PlaceholderExpansion implements Taskabl
                         "is_clearinventory_confirm",
                         "is_pay_confirm",
                         "is_pay_enabled",
+                        "is_private_messages_enabled",
+                        "is_teleport_auto_accept_enabled",
                         "is_teleport_enabled",
                         "muted",
                         "vanished",
@@ -265,7 +267,9 @@ public class EssentialsExpansion extends PlaceholderExpansion implements Taskabl
             case "is_clearinventory_confirm" -> user.isPromptingClearConfirm();
             case "is_pay_confirm" -> user.isPromptingPayConfirm();
             case "is_pay_enabled" -> user.isAcceptingPay();
+            case "is_teleport_auto_accept_enabled" -> user.isAutoTeleportEnabled();
             case "is_teleport_enabled" -> user.isTeleportEnabled();
+            case "is_private_messages_enabled" -> !user.isIgnoreMsg();
             case "muted", "is_muted" -> user.isMuted();
             case "vanished" -> user.isVanished();
 
